@@ -23,8 +23,8 @@ class Hotel(Resource):
     def parse_args():
         argumentos = reqparse.RequestParser()
         
-        argumentos.add_argument('nome')
-        argumentos.add_argument('estrelas')
+        argumentos.add_argument('nome', type=str, required=True, help="The field 'nome' cannot be left blank!")
+        argumentos.add_argument('estrelas', type=float, required=True, help="The fiield 'estrelas' cannot be left blank!")
         argumentos.add_argument('diaria')
         argumentos.add_argument('cidade')
         
@@ -46,17 +46,15 @@ class Hotel(Resource):
         
         dados = Hotel.parse_args()
         
-        # Aqui o hotel é retornado em formato de objeto]
-        # Formato que não da para ser retornado ou ser manipulado nas requisições
         hotel = HotelModel(hotel_id, **dados)
         
-        # Aqui utilizamos o metodo criado para transformar de objeto para dicionario, formato valido para manipuilação
-        # novo_hotel = hotel_model.json()
+        try:
+            hotel.save_hotel()
         
-        hotel.save_hotel()
+            return hotel.json(), 201
+        except:
+            return { 'message': 'An internal error ocurred trying to save hotel!' } , 500      
         
-        return hotel.json(), 201
-    
     def put(self, hotel_id):
         dados = Hotel.parse_args()
         
@@ -69,9 +67,12 @@ class Hotel(Resource):
         
         novo_hotel = HotelModel(hotel_id, **dados)
         
-        novo_hotel.save_hotel()
+        try:
+            novo_hotel.save_hotel()
         
-        return novo_hotel, 201
+            return novo_hotel.json(), 201
+        except:
+            return { 'message': 'An internal error ocurred trying to save hotel!' } , 500
     
     def delete(self, hotel_id):        
         hotel = HotelModel.find_hotel(hotel_id)
@@ -79,6 +80,9 @@ class Hotel(Resource):
         if not hotel:
             return { 'message': "Hotel not exists" }, 400
         
-        hotel.delete_hotel()
+        try:
+            hotel.delete_hotel()
         
-        return { 'message': 'Hotel Deleted' }, 200
+            return { 'message': 'Hotel Deleted' }, 200
+        except:
+            return { 'message': 'An internal error ocurred trying to delete hotel!' } , 500
