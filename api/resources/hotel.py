@@ -1,4 +1,5 @@
 from flask_restful import Resource, reqparse
+from flask_jwt_extended import jwt_required
 
 from models.Hotel import HotelModel
 
@@ -40,6 +41,7 @@ class Hotel(Resource):
             
         return { 'message': "Hotel not exists!" }, 404
     
+    @jwt_required
     def post(self, hotel_id):
         if HotelModel.find_hotel(hotel_id):
             return { 'message': f"Hotel id {hotel_id} already exists!" }, 400
